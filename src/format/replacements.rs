@@ -61,8 +61,18 @@ pub fn replace_relational_operators(line: &str, use_c_style: bool) -> String {
                 if rest.len() >= from.len()
                     && rest[..from.len()].eq_ignore_ascii_case(from.as_bytes())
                 {
+                    // A dotted operator glued to its operands (`b.eq.1`) is
+                    // read as one word by the case pass, which then changes
+                    // the case of the operands too; keep it separated.
+                    let dotted = !use_c_style;
+                    if dotted && !result.is_empty() && !result.ends_with(' ') {
+                        result.push(' ');
+                    }
                     result.push_str(to);
                     i += from.len();
+                    if dotted && i < line.len() && line.as_bytes()[i] != b' ' {
+                        result.push(' ');
+                    }
                     continue 'next;
                 }
             }
