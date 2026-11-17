@@ -835,6 +835,15 @@ impl Charwise<'_> {
             return true;
         }
 
+        // Check for /= (relational "not equal") - copy through unchanged,
+        // the relational pass takes care of its spacing
+        if ch == '/' && self.peek(1) == Some('=') {
+            self.out.push('/');
+            self.out.push('=');
+            self.i += 2;
+            return true;
+        }
+
         // Check for (/ or /) - array constructor delimiters, copy through
         let prev_non_space = self.prev_non_space();
         let next_char = self.peek(1);
